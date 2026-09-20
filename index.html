@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="تقرير الحصص">
+<meta name="format-detection" content="telephone=no">
+<title>توليد تقارير الحصص — المتوسطة الحادية والعشرون</title>
+
+<!-- خط Tajawal -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head><body>
+<div class="wrap">
+
+  <div class="topband">
+    <img id="topLogo" alt="شعار وزارة التعليم">
+    <div class="divider"></div>
+    <div class="titles">
+      <p class="page-title">توليد تقارير الحصص</p>
+      <p class="subtitle">المتوسطة الحادية والعشرون — إدارة التعليم بمنطقة عسير.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <details class="settings">
+      <summary>بيانات المدرسة</summary>
+      <p class="card-hint">تُستخدم هذه البيانات في جميع التقارير.</p>
+      <div class="grid g2">
+        <div class="field"><label>اسم المدرسة</label><input id="f_school" type="text" placeholder="مثال: المتوسطة الحادية والعشرون"></div>
+        <div class="field"><label>اسم مديرة المدرسة</label><input id="f_principal" type="text" placeholder="مثال: أمينة آل مشيط"></div>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <details class="settings">
+      <summary>جدول الحصص (اضبطيه مرة واحدة)</summary>
+      <p class="card-hint">هذا الجدول يُستخدم لحساب وقت الحصة تلقائيًا عند اختيارها بالأسفل. يُحفظ على جهازك فقط، وتقدرين تعدّلينه بأي وقت.</p>
+      <div class="sched-grid" id="schedGrid"></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>استيراد بيانات الحصص (اختياري)</h2>
+    <p class="card-hint">يمكن استيراد بيانات الحصص مسبقًا من ملف Excel أو CSV لتسهيل عملية إعداد التقارير.</p>
+    <div class="import-row">
+      <div class="file-btn-wrap">
+        <button class="btn btn-ghost btn-sm">استيراد تقرير حضور Teams / مدرستي (CSV)</button>
+        <input type="file" id="importTeamsCsv" accept=".csv">
+      </div>
+      <div class="file-btn-wrap">
+        <button class="btn btn-ghost btn-sm">استيراد مجلد ملفات (إكسل أو CSV)</button>
+        <input type="file" id="importFolder" webkitdirectory multiple>
+      </div>
+      <div class="file-btn-wrap">
+        <button class="btn btn-ghost btn-sm">استيراد عدة ملفات (إكسل أو CSV) — للجوال ودرايف</button>
+        <input type="file" id="importMultiFiles" accept=".xlsx,.xls,.csv" multiple>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>البيانات الأساسية للتقرير</h2>
+    <div class="grid g2">
+      <div class="field"><label>اسم المعلمة</label><input id="f_teacher" type="text"></div>
+      <div class="field"><label>الأسبوع الدراسي</label><input id="f_week" type="text" placeholder="مثال: 7"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="grid g2">
+      <div class="field">
+        <label>اليوم</label>
+        <select id="f_day">
+          <option value="">اختاري</option>
+          <option>الأحد</option><option>الاثنين</option><option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option>
+        </select>
+      </div>
+      <div class="field"><label>التاريخ الهجري</label><input id="f_date" type="text" placeholder="1448/04/05"></div>
+    </div>
+    <p class="hint">هذه البيانات تنطبق على كل حصص اليوم، فما تحتاجين تكررينها في كل حصة.</p>
+  </div>
+
+  <div id="sessionsWrap"></div>
+
+  <div class="card">
+    <div class="actions">
+      <button class="btn btn-ghost btn-sm" id="addSessionBtn">+ إضافة حصة</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="actions">
+      <button class="btn btn-primary" id="genBtn">أ) ملف Word لكل الحصص</button>
+      <button class="btn btn-primary" id="genPdfBtn">ب) ملف PDF لكل الحصص</button>
+    </div>
+    <div class="design-pick">
+      <label for="designPick">تصميم التقرير:</label>
+      <select id="designPick">
+        <option value="official" selected>التصميم الرسمي</option>
+        <option value="blue">الأزرق والبنفسجي</option>
+      </select>
+    </div>
+    <p class="hint">لملف PDF نظيف: في نافذة الطباعة اختاري «حفظ كـ PDF» (Save as PDF)، والمقاس A4، والهوامش «بلا/None»، وأوقفي «الرؤوس والتذييلات» إن ظهرت.</p>
+    <p class="err" id="errMsg"></p>
+  </div>
+
+</div>
+
+<div id="printArea"></div>
+
+<div class="toast" id="toast"></div>
+
+<template id="sessionTemplate">
+  <div class="session">
+    <div class="session-head">
+      <span class="num"></span>
+      <button class="btn btn-danger btn-sm removeBtn">حذف الحصة</button>
+    </div>
+    <div class="grid">
+      <div class="field"><label>المادة</label><input class="f_subject" type="text" placeholder="مثال: مهارات رقمية"></div>
+      <div class="field"><label>المرحلة الدراسية</label><input class="f_stage" type="text" placeholder="مثال: ثالث متوسط"></div>
+      <div class="field"><label>الفصل</label><input class="f_class" type="text" placeholder="مثال: 2"></div>
+      <div class="field"><label>عدد الطالبات الكلي</label><input class="f_total" type="number" min="0" placeholder="20"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="field">
+      <label>الحصة (اختاري واحدة أو أكثر)</label>
+      <div class="period-picker"></div>
+      <div class="period-time-echo"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="grid g2">
+      <div class="field"><label>عدد الحاضرات الفعلي</label><input class="f_present" type="number" min="0" placeholder="8"></div>
+      <div class="field"><label>رابط شواهد الحصة (اختياري)</label><input class="f_link" type="url" placeholder="https://drive.google.com/…"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="field"><label>عنوان الدرس</label><input class="f_lesson" type="text" placeholder="مثال: حماية جهاز الحاسب الشخصي"></div>
+    <div class="spacer"></div>
+    <div class="field"><label>أسماء الطالبات الحاضرات (اختياري — كل اسم بسطر)</label><textarea class="f_names" placeholder="الجوري بنت الفيفي
+وتين بنت ضفدع
+..."></textarea></div>
+    <div class="spacer"></div>
+    <div class="field"><label>ملاحظات وتوصيات (اختياري)</label><textarea class="f_notes" placeholder="مثال: سُجل ارتفاع في نسبة الغياب؛ سيتم التواصل مع أولياء الأمور"></textarea></div>
+  </div>
+</template>
+
+<!-- المكتبات الخارجية -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@9.5.1/dist/index.iife.js"></script>
+
+<!-- منطق التطبيق -->
+<script src="script.js"></script>
+
+</body>
+</html>
